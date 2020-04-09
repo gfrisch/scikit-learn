@@ -1044,6 +1044,7 @@ further details.
    :template: function.rst
 
    metrics.consensus_score
+   metrics.coclustering_adjusted_rand_score
 
 
 Pairwise metrics
