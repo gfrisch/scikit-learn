@@ -19,16 +19,19 @@ print(__doc__)
 # Author: Kemal Eren <kemal@kemaleren.com>
 # License: BSD 3 clause
 
-import numpy as np
-from matplotlib import pyplot as plt
+import numpy as np  # noqa: E402
+from matplotlib import pyplot as plt  # noqa: E402
 
-from sklearn.datasets import make_biclusters
-from sklearn.cluster import SpectralCoclustering
-from sklearn.metrics import consensus_score
+from sklearn.datasets import make_biclusters  # noqa: E402
+from sklearn.cluster import SpectralCoclustering  # noqa: E402
+from sklearn.metrics import (
+    consensus_score,
+    coclustering_adjusted_rand_score,
+)  # noqa: E402
 
 data, rows, columns = make_biclusters(
-    shape=(300, 300), n_clusters=5, noise=5,
-    shuffle=False, random_state=0)
+    shape=(300, 300), n_clusters=5, noise=5, shuffle=False, random_state=0
+)
 
 plt.matshow(data, cmap=plt.cm.Blues)
 plt.title("Original dataset")
@@ -44,11 +47,17 @@ plt.title("Shuffled dataset")
 
 model = SpectralCoclustering(n_clusters=5, random_state=0)
 model.fit(data)
-score = consensus_score(model.biclusters_,
-                        (rows[:, row_idx], columns[:, col_idx]))
-
-print("consensus score: {:.3f}".format(score))
-
+consensus_score = consensus_score(
+    model.biclusters_, (rows[:, row_idx], columns[:, col_idx])
+)
+cari_score = coclustering_adjusted_rand_score(
+    model.biclusters_[0].argmax(axis=0),
+    model.biclusters_[1].argmax(axis=0),
+    rows[:, row_idx].argmax(axis=0),
+    columns[:, col_idx].argmax(axis=0),
+)
+print("consensus score: {:.3f}".format(consensus_score))
+print("coclassification adjusted rand score: {:.3f}".format(cari_score))
 fit_data = data[np.argsort(model.row_labels_)]
 fit_data = fit_data[:, np.argsort(model.column_labels_)]
 
